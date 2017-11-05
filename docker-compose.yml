@@ -1,0 +1,43 @@
+nginx:
+    image: nginx
+    ports:
+        - "80:80"
+    links:
+        - php
+    volumes:
+        - ./web:/var/www/html
+        - ./nginx/:/etc/nginx/conf.d/
+        - ./logs/error.log:/var/log/nginx/error.log
+        - ./logs/access.log:/var/log/nginx/access.log
+php:
+    image: laradock/php-fpm:7.1--1.4
+    links:
+        - mysql
+    ports:
+        - "9000:9000"
+    volumes:
+        - ./web:/var/www/html
+workspace:
+    image: laradock/workspace
+    volumes:
+        - ./web:/var/www/html
+    links:
+        - mysql
+mysql:
+  image: mariadb
+  environment:
+    - MYSQL_ROOT_PASSWORD=admin
+  ports:
+    - "3306:3306"
+phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  restart: always
+  links:
+    - mysql
+  ports:
+    - 8183:80
+  environment:
+    PMA_USER: root
+    PMA_PASSWORD: admin
+    PMA_ARBITRARY: 1
+    PMA_HOST: mysql
